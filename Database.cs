@@ -245,7 +245,7 @@ namespace Stock
                 connection.Close();
                 if (obj != null)
                     price = double.Parse(obj.ToString());
-                newprice = GetStockPrice(stockname);
+                newprice = GetStockSellingPrice(stockname);
                 profit = ((newprice-price) / price) * 100;
                 profit = Math.Round(profit, 2);
                 if(profit >= 0.00)

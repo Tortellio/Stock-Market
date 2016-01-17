@@ -17,7 +17,9 @@ namespace Stock
         public DateTime[] Bankrupt;
         public DatabaseManager Database;
         public static Stock Instance;
-        private int countMinus = 0;
+        private int countMinus = 0, countPlus = 0;
+        public bool InTrend = false;
+        public char InTrendChar = ' ';
         protected override void Load()
         {
             Instance = this;
@@ -52,7 +54,7 @@ namespace Stock
                 string[] AllStocks = Stock.Instance.Database.GetAllStockName();
                 Bankrupt = new DateTime[AllStocks.Length]; 
                 double[] stockprice = new double[AllStocks.Length];
-                double NewPrice = 0.00;               
+                double NewPrice = 0.00;
                 for(int i = 0; i < AllStocks.Length; i ++)
                 {
                     if (Stock.Instance.Database.Getstatus(AllStocks[i]).Trim() != "bankrupt")
@@ -98,26 +100,65 @@ namespace Stock
         private char UpOrDown()
         {
             char UpDown = ' ';
+            int count = 0;
             int randomNumber = 0;
+            int StopTrend = 0;
             System.Random random = new System.Random();
-            for (int i = 0; i < 2; i++)
+            randomNumber = random.Next(1, 101);
+            if (!InTrend)
             {
-                randomNumber = random.Next(1, 101);
-            }
-            if(randomNumber <= 50)
-            {
-                UpDown = '+';
+                if (randomNumber <= 85)
+                {
+                    for (int i = 0; i < 2; i++)
+                    {
+                        randomNumber = random.Next(1, 101);
+                    }
+                    if (randomNumber <= 49)
+                    {
+                        if (countPlus < 15)
+                            UpDown = '+';
+                        else
+                        {
+                            UpDown = '-';
+                            countPlus = 0;
+                        }
+                        countPlus++;
+                    }
+                    else
+                    {
+                        if (countMinus < 15)
+                            UpDown = '-';
+                        else
+                        {
+                            UpDown = '+';
+                            countMinus = 0;
+                        }
+                        countMinus++;
+                    }
+                }
+                else if (randomNumber > 85 && randomNumber <= 92)
+                {
+                    InTrend = true;
+                    InTrendChar = '+';
+                    StopTrend = random.Next(1, 11);
+                }
+                else if(randomNumber > 92)
+                {
+                    InTrend = true;
+                    InTrendChar = '-';
+                    StopTrend = random.Next(1, 11);
+                }
             }
             else
             {
-                if (countMinus < 15)
-                    UpDown = '-';
-                else
+                UpDown = InTrendChar;
+                count++;
+                if(count == StopTrend)
                 {
-                    UpDown = '+';
-                    countMinus = 0;
+                    InTrend = false;
+                    count = 0;
                 }
-                countMinus++;
+                
             }
             return UpDown;
         }
