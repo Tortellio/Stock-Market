@@ -16,7 +16,7 @@ namespace Stock
             new I18N.West.CP1250(); //Workaround for database encoding issues with mono
             CheckSchema();
         }
-        private MySqlConnection createConnection()
+        private MySqlConnection CreateConnection()
         {
             MySqlConnection connection = null;
             try
@@ -37,7 +37,7 @@ namespace Stock
             DataTable dt = new DataTable();
             try
             {
-                MySqlConnection connection = createConnection();
+                MySqlConnection connection = CreateConnection();
                 MySqlCommand command = connection.CreateCommand();
                 command.CommandText = "select `stockname` from `" + Stock.Instance.Configuration.Instance.DatabaseStockMarket + "`";
                 MySqlDataAdapter adapter = new MySqlDataAdapter(command);
@@ -64,7 +64,7 @@ namespace Stock
             DataTable dt = new DataTable();
             try
             {
-                MySqlConnection connection = createConnection();
+                MySqlConnection connection = CreateConnection();
                 MySqlCommand command = connection.CreateCommand();
                 command.CommandText = "select `steamId` from `" + Stock.Instance.Configuration.Instance.DatabaseStockholder + "` where `stocks` = '" + stock + "'";
                 MySqlDataAdapter adapter = new MySqlDataAdapter(command);
@@ -89,7 +89,7 @@ namespace Stock
             string stock = "";
             try
             {
-                MySqlConnection connection = createConnection();
+                MySqlConnection connection = CreateConnection();
                 MySqlCommand command = connection.CreateCommand();
                 command.CommandText = "select `stocks` from `" + Stock.Instance.Configuration.Instance.DatabaseStockholder + "` where `steamId` = '"+id+"'";
                 connection.Open();
@@ -110,7 +110,7 @@ namespace Stock
             double price = 0.00;
             try
             {
-                MySqlConnection connection = createConnection();
+                MySqlConnection connection = CreateConnection();
                 MySqlCommand command = connection.CreateCommand();
                 command.CommandText = "select `price` from `" + Stock.Instance.Configuration.Instance.DatabaseStockMarket + "` where `stockname` = '"+stockname+"'";
                 connection.Open();
@@ -132,7 +132,7 @@ namespace Stock
             double price = 0.00;
             try
             {
-                MySqlConnection connection = createConnection();
+                MySqlConnection connection = CreateConnection();
                 MySqlCommand command = connection.CreateCommand();
                 command.CommandText = "select `sellingprice` from `" + Stock.Instance.Configuration.Instance.DatabaseStockMarket + "` where `stockname` = '" + stockname + "'";
                 connection.Open();
@@ -151,10 +151,10 @@ namespace Stock
         }
         public void SetUpdateStockPrice(double newprice, string stockname, double sellingprice)
         {
-            decimal price = decimal.Parse(newprice.ToString());
+            _ = decimal.Parse(newprice.ToString());
             try
             {
-                MySqlConnection connection = createConnection();
+                MySqlConnection connection = CreateConnection();
                 MySqlCommand command = connection.CreateCommand();
                 command.CommandText = "update `" + Stock.Instance.Configuration.Instance.DatabaseStockMarket + "` set `price` = " + newprice + " ,`sellingprice` = "+ sellingprice+" where `stockname` = '" + stockname + "'";
                 connection.Open();
@@ -171,7 +171,7 @@ namespace Stock
             bool havestock = false;
             try
             {
-                MySqlConnection connection = createConnection();
+                MySqlConnection connection = CreateConnection();
                 MySqlCommand command = connection.CreateCommand();
                 command.CommandText = "select `stocks` from `" + Stock.Instance.Configuration.Instance.DatabaseStockholder + "` where `steamId` = '" + Id + "'";
                 connection.Open();
@@ -193,7 +193,7 @@ namespace Stock
             string profit = "+0.00%";
             try
             {
-                MySqlConnection connection = createConnection();
+                MySqlConnection connection = CreateConnection();
                 MySqlCommand command = connection.CreateCommand();
                 command.CommandText = "select `profit` from `" + Stock.Instance.Configuration.Instance.DatabaseStockholder + "` where `steamId` = '" + id + "'";
                 connection.Open();
@@ -212,10 +212,10 @@ namespace Stock
         }
         public bool SetBalance(string id, decimal newbal)
         {
-            bool Updated = false;
+            bool Updated;
             try
             {
-                MySqlConnection connection = createConnection();
+                MySqlConnection connection = CreateConnection();
                 MySqlCommand command = connection.CreateCommand();
                 command.CommandText = "update `" + Uconomy.Instance.Configuration.Instance.DatabaseTableName + "` set `balance` = "+newbal+" where `steamId` = '" + id + "'";
                 connection.Open();
@@ -232,12 +232,11 @@ namespace Stock
         }
         public bool SetPlayerProfit(string id, string stockname)
         {
-            bool Updated = false;
-            double price = 0.00, newprice = 0.00, profit = 0.00;
-            string newprofit = "+0.00%";
+            double price = 0.00;
+            bool Updated;
             try
             {
-                MySqlConnection connection = createConnection();
+                MySqlConnection connection = CreateConnection();
                 MySqlCommand command = connection.CreateCommand();
                 command.CommandText = "select `price` from `" + Stock.Instance.Configuration.Instance.DatabaseStockholder + "` where `steamId` = '" + id + "'";
                 connection.Open();
@@ -245,10 +244,11 @@ namespace Stock
                 connection.Close();
                 if (obj != null)
                     price = double.Parse(obj.ToString());
-                newprice = GetStockSellingPrice(stockname);
-                profit = ((newprice-price) / price) * 100;
+                double newprice = GetStockSellingPrice(stockname);
+                double profit = ((newprice - price) / price) * 100;
                 profit = Math.Round(profit, 2);
-                if(profit >= 0.00)
+                string newprofit;
+                if (profit >= 0.00)
                     newprofit = "+" + profit.ToString() + "%";
                 else
                     newprofit = profit.ToString() + "%";
@@ -267,13 +267,13 @@ namespace Stock
         }
         public bool SetPlayerStock(string id,string stocks, decimal price, int amount)
         {
-            bool Updated = false;
             string Oldstock = "";
+            bool Updated;
             try
             {
-                MySqlConnection connection = createConnection();
+                MySqlConnection connection = CreateConnection();
                 MySqlCommand command = connection.CreateCommand();
-                if(CheckPlayerOwnedStock(id))
+                if (CheckPlayerOwnedStock(id))
                 {
                     int Amt = 0;
                     string AllAmt = GetPlayerStockAmt(id);
@@ -286,7 +286,7 @@ namespace Stock
                         Oldstock = obj.ToString();
                     if (Oldstock.Contains(stocks))
                     {
-                                           
+
                         Amt = int.Parse(AllAmt);
                         Amt += amount;
                         Amount = Amt.ToString();
@@ -297,7 +297,7 @@ namespace Stock
                     }
                 }
                 else
-                    command.CommandText = "insert into `" + Stock.Instance.Configuration.Instance.DatabaseStockholder + "` (`steamId`, `stocks`,`price`, `profit`, `amt`) values('"+id+"','"+stocks+"',"+price+", '+0.00%','"+amount.ToString()+"')";
+                    command.CommandText = "insert into `" + Stock.Instance.Configuration.Instance.DatabaseStockholder + "` (`steamId`, `stocks`,`price`, `profit`, `amt`) values('" + id + "','" + stocks + "'," + price + ", '+0.00%','" + amount.ToString() + "')";
                 connection.Open();
                 command.ExecuteScalar();
                 connection.Close();
@@ -314,7 +314,7 @@ namespace Stock
         {
             try
             {
-                MySqlConnection connection = createConnection();
+                MySqlConnection connection = CreateConnection();
                 MySqlCommand command = connection.CreateCommand();
                 command.CommandText = "update `" + Stock.Instance.Configuration.Instance.DatabaseStockholder + "` set `amt` = '" + Amt + "' where `steamId` = '" + steamid + "'";
                 connection.Open();
@@ -331,7 +331,7 @@ namespace Stock
             string Amt= "";
             try
             {
-                MySqlConnection connection = createConnection();
+                MySqlConnection connection = CreateConnection();
                 MySqlCommand command = connection.CreateCommand();
                 command.CommandText = "select `amt` from `" + Stock.Instance.Configuration.Instance.DatabaseStockholder + "` where `steamId` = '" + id + "'";
                 connection.Open();
@@ -350,10 +350,10 @@ namespace Stock
         }
         public bool RemovePlayer(string id)
         {
-            bool Removed = false;
+            bool Removed;
             try
             {
-                MySqlConnection connection = createConnection();
+                MySqlConnection connection = CreateConnection();
                 MySqlCommand command = connection.CreateCommand();
                 command.CommandText = "delete from `" + Stock.Instance.Configuration.Instance.DatabaseStockholder + "` where `steamId` = '" + id + "'";
                 connection.Open();
@@ -373,7 +373,7 @@ namespace Stock
             string status = "";
             try
             {
-                MySqlConnection connection = createConnection();
+                MySqlConnection connection = CreateConnection();
                 MySqlCommand command = connection.CreateCommand();
                 command.CommandText = "select `status` from `" + Stock.Instance.Configuration.Instance.DatabaseStockMarket + "` where `stockname` = '" + stockname + "'";
                 connection.Open();
@@ -394,7 +394,7 @@ namespace Stock
         {
             try
             {
-                MySqlConnection connection = createConnection();
+                MySqlConnection connection = CreateConnection();
                 MySqlCommand command = connection.CreateCommand();
                 command.CommandText = "update `" + Stock.Instance.Configuration.Instance.DatabaseStockMarket + "` set `Status` = '" + status + "' where `stockname` = '" + stockname + "'";
                 connection.Open();
@@ -410,7 +410,7 @@ namespace Stock
         {
             try
             {
-                MySqlConnection connection = createConnection();
+                MySqlConnection connection = CreateConnection();
                 MySqlCommand command = connection.CreateCommand();
                 command.CommandText = "show tables like '" + Stock.Instance.Configuration.Instance.DatabaseStockholder + "'";
                 connection.Open();

@@ -46,7 +46,7 @@ namespace Stock
                 };
             }
         }
-        private void FixedUpdate()
+        public void FixedUpdate()
         {
             if((DateTime.Now - this.lastcheck).TotalSeconds >=  Stock.Instance.Configuration.Instance.StockMarketUpdateInterval )
             {
@@ -60,14 +60,14 @@ namespace Stock
                     if (Stock.Instance.Database.Getstatus(AllStocks[i]).Trim() != "bankrupt")
                     {
                         stockprice[i] = Stock.Instance.Database.GetStockPrice(AllStocks[i]);
-                        double Value = value();
+                        double value = Value();
                         switch (UpOrDown())
                         {
                             case '+':
-                                NewPrice = stockprice[i] + Value;
+                                NewPrice = stockprice[i] + value;
                                 break;
                             case '-':
-                                NewPrice = stockprice[i] - Value;
+                                NewPrice = stockprice[i] - value;
                                 break;
                         }
                         if (NewPrice <= 0)
@@ -101,10 +101,9 @@ namespace Stock
         {
             char UpDown = ' ';
             int count = 0;
-            int randomNumber = 0;
             int StopTrend = 0;
             System.Random random = new System.Random();
-            randomNumber = random.Next(1, 101);
+            int randomNumber = random.Next(1, 101);
             if (!InTrend)
             {
                 if (randomNumber <= 85)
@@ -140,13 +139,13 @@ namespace Stock
                 {
                     InTrend = true;
                     InTrendChar = '+';
-                    StopTrend = random.Next(1, 11);
+                    _ = random.Next(1, 11);
                 }
                 else if(randomNumber > 92)
                 {
                     InTrend = true;
                     InTrendChar = '-';
-                    StopTrend = random.Next(1, 11);
+                    _ = random.Next(1, 11);
                 }
             }
             else
@@ -156,13 +155,12 @@ namespace Stock
                 if(count == StopTrend)
                 {
                     InTrend = false;
-                    count = 0;
                 }
-                
+
             }
             return UpDown;
         }
-        private double value()
+        private double Value()
         {
             double randomNo = 0.00;
             System.Random random = new System.Random();

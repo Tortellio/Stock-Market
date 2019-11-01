@@ -1,11 +1,9 @@
 ﻿using Rocket.API;
 using Rocket.Unturned.Chat;
-using Rocket.Unturned.Player;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using fr34kyn01535.Uconomy; 
-using Rocket.Core.Logging;
 
 namespace Stock
 {
@@ -54,17 +52,17 @@ namespace Stock
             if (String.IsNullOrEmpty(comd.Trim()))
             {
                 string[] AllStock;
-                string stock = "";
-                string List = "";
-                if (Stock.Instance.Database.CheckPlayerOwnedStock(caller.Id) && Stock.Instance.Database.GetPlayerStockAmt(caller.Id)== "0")
+                if (Stock.Instance.Database.CheckPlayerOwnedStock(caller.Id) && Stock.Instance.Database.GetPlayerStockAmt(caller.Id) == "0")
                 {
                     Stock.Instance.Database.RemovePlayer(caller.Id);
                 }
+
+                string List;
                 if (Stock.Instance.Database.CheckPlayerOwnedStock(caller.Id))
                 {
-                    stock = Stock.Instance.Database.GetPlayerStockName(caller.Id);
+                    string stock = Stock.Instance.Database.GetPlayerStockName(caller.Id);
                     Stock.Instance.Database.SetPlayerProfit(caller.Id, stock);
-                    List = stock + ": " + Stock.Instance.Database.GetStockPrice(stock).ToString() + ", Profit: " + Stock.Instance.Database.GetPlayerProfit(caller.Id) + ", Owned: " + Stock.Instance.Database.GetPlayerStockAmt(caller.Id) ;
+                    List = stock + ": " + Stock.Instance.Database.GetStockPrice(stock).ToString() + ", Profit: " + Stock.Instance.Database.GetPlayerProfit(caller.Id) + ", Owned: " + Stock.Instance.Database.GetPlayerStockAmt(caller.Id);
                     UnturnedChat.Say(caller, Stock.Instance.DefaultTranslations.Translate("lpx_list_Allstock", List));
                 }
                 else
@@ -100,7 +98,6 @@ namespace Stock
                 switch (oper[0])
                 {
                     case "buy":
-                        Amt = 1;
                         if (Stock.Instance.Database.CheckPlayerOwnedStock(caller.Id) == false || Stock.Instance.Database.GetPlayerStockName(caller.Id) == param[0])
                         {
                             if (param.Length == 1)
@@ -136,7 +133,7 @@ namespace Stock
                             else if (param.Length == 2 && int.TryParse(param[1], out Amt)) { }
                             else if (param[1] == "*") Amt = int.Parse(Stock.Instance.Database.GetPlayerStockAmt(caller.Id));
                             decimal sellprice = decimal.Parse(Stock.Instance.Database.GetStockSellingPrice(param[0]).ToString()) * Amt;
-                            decimal balance = decimal.Parse(Uconomy.Instance.Database.GetBalance(caller.Id).ToString());
+                            _ = decimal.Parse(Uconomy.Instance.Database.GetBalance(caller.Id).ToString());
                             int PlayerAmt = int.Parse(Stock.Instance.Database.GetPlayerStockAmt(caller.Id));
                             if (Amt > PlayerAmt)
                             {
